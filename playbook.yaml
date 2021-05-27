@@ -1,0 +1,68 @@
+---
+- name: Plays for the Ubuntu VM
+  hosts: ubuntu
+
+  tasks:
+  - name: Update apt cache and install Python 3
+    apt:
+      name: python3
+      update_cache: yes
+
+  - name: Stop firewall
+    service:
+      name: ufw
+      state: stopped
+      enabled: no
+
+
+- name: Plays for the Centos VM
+  hosts: centos
+
+  tasks:
+  - name: Update yum cache and install Python 3
+    yum:
+      name: python3
+      update_cache: yes
+
+  - name: Stop firewall
+    service:
+      name: firewalld
+      state: stopped
+      enabled: no
+
+
+- name: file module and lineinfile
+  hosts: all
+  
+  tasks:
+  - name: create a file called 'UpdatedHelloworld' in the '/' directory
+    file:
+      path: '/UpdatedHelloworld'
+      state: touch
+      owner: vagrant
+      group: vagrant
+      mode: '0755'
+
+  - name: Insert a line inside the 'UpdatedHelloworld' file
+    lineinfile:
+      path: '/UpdatedHelloworld'
+      line: 'This is a file created and updated using the file and lineinfile modules.'
+      state: present
+
+  - name: copy 'myname' to the /home/vagrant directory
+    copy:
+      src: myname
+      dest: /home/vagrant/myname
+      owner: vagrant
+      group: vagrant
+      mode: '0755'
+
+  - name: View content of 'myname'
+    shell: "cat /home/vagrant/myname"
+    register: output
+
+  - name: show output of 'myname'
+    debug:
+      var: output
+
+
